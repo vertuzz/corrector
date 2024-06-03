@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fullscreen Textarea</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        textarea {
+            flex-grow: 1;
+            resize: none;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .button-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+        }
+
+        button {
+            flex: 1;
+            height: 50px;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .collapsible {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+            padding: 5px; /* Reduced padding */
+            width: auto; /* Adjust width as needed */
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 12px; /* Reduced font size */
+            flex: none; /* Override flex property */
+            height: auto; /* Override height property */
+            margin: 0; /* Override margin property */
+        }
+
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+
+        .content input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <button type="button" class="collapsible">Settings</button>
+    <div class="content">
+        <input type="text" id="apiKeyInput" placeholder="API Key">
+        <input type="text" id="modelInput" placeholder="Model">
+        <input type="text" id="baseUrlInput" placeholder="Base URL">
+        <button onclick="saveSettings()">Save</button>
+    </div>
+
+    <textarea id="inputText"></textarea>
+    <div class="button-container">
+        <button onclick="callOpenAI()">Submit</button>
+        <button onclick="copyText()">Copy</button>
+    </div>
+
+    <script>
+        const defaultApiKey = 'YOUR_API_KEY';
+        const defaultModel = 'llama3-8b-8192';
+        const defaultBaseUrl = 'https://api.groq.com/openai/v1/';
+
+        const apiKey = localStorage.getItem('apiKey') || defaultApiKey;
+        const model = localStorage.getItem('model') || defaultModel;
+        const baseUrl = localStorage.getItem('baseUrl') || defaultBaseUrl;
+
+        document.getElementById('apiKeyInput').value = apiKey;
+        document.getElementById('modelInput').value = model;
+        document.getElementById('baseUrlInput').value = baseUrl;
+
+        const prompt = "You are a text correction assistant. Correct grammar, styling, punctuation, and spelling errors in text. Reply only with corrections. No comments or explanations."
+
+        const textarea = document.getElementById('inputText');
+
+        async function callOpenAI() {
+            const inputText = textarea.value;
+
+            const response = await fetch(`${baseUrl}chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        { role: 'system', content: prompt },
+                        { role: 'user', content: inputText }
+                    ]
+                })
+            });
+
+            const data = await response.json();
+            const correctedText = data.choices[0].message.content;
+            textarea.value = correctedText;
+        }
+
+        function copyText() {
+            textarea.select();
+            document.execCommand('copy');
+        }
+
+        textarea.addEventListener('keydown', function (event) {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+                event.preventDefault();
+                callOpenAI();
+            }
+        });
+
+        document.querySelector('.collapsible').addEventListener('click', function () {
+            this.classList.toggle('active');
+            const content = this.nextElementSibling;
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
+        });
+
+        function saveSettings() {
+            const apiKeyInput = document.getElementById('apiKeyInput').value;
+            const modelInput = document.getElementById('modelInput').value;
+            const baseUrlInput = document.getElementById('baseUrlInput').value;
+
+            if (apiKeyInput) localStorage.setItem('apiKey', apiKeyInput);
+            if (modelInput) localStorage.setItem('model', modelInput);
+            if (baseUrlInput) localStorage.setItem('baseUrl', baseUrlInput);
+
+            window.location.reload();
+        }
+    </script>
+</body>
+
+</html>
