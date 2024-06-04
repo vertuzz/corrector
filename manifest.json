@@ -1,7 +1,7 @@
 {
     "name": "Corrector",
     "short_name": "Corrector",
-    "start_url": "/",
+    "start_url": "/corrector/",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#000000",
