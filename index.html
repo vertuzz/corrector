@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fullscreen Textarea</title>
+    <title>Corrector</title>
     <style>
         html,
         body {
@@ -196,6 +196,15 @@
             }
             textarea.value = ''; // Clear the textarea before starting voice input
             recognition.start();
+        }
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(function(registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.log('Service Worker registration failed:', error);
+                });
         }
     </script>
 </body>
