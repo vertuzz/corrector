@@ -82,6 +82,7 @@
     <div class="button-container">
         <button onclick="callOpenAI()">Submit</button>
         <button onclick="copyText()">Copy</button>
+        <button onclick="clearText()">Clear</button>
         <button id="voiceInputButton" onclick="toggleVoiceInput()">Start Voice Input</button>
     </div>
 
@@ -146,6 +147,10 @@
                 content.style.display = "block";
             }
         });
+
+        function clearText() {
+            textarea.value = '';
+        }
 
         function saveSettings() {
             const apiKeyInput = document.getElementById('apiKeyInput').value;
